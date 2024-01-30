@@ -77,9 +77,9 @@ void collocation_device_masked_combined_kernel(
 
     const bool do_sph = shell.pure();
     if( do_sph )
-      collocation_spherical_unnorm_angular( npts, shell.l(), tmp, xc, yc, zc, bf_eval );
+      integrator::cuda::collocation_spherical_unnorm_angular( npts, shell.l(), tmp, xc, yc, zc, bf_eval );
     else
-      collocation_cartesian_angular( npts, shell.l(), tmp, xc, yc, zc, bf_eval );
+      integrator::cuda::collocation_cartesian_angular( npts, shell.l(), tmp, xc, yc, zc, bf_eval );
 
   } // shell / point idx check
 
@@ -180,11 +180,11 @@ void collocation_device_masked_combined_kernel_deriv1(
 
     const bool do_sph = shell.pure();
     if( do_sph ) 
-      collocation_spherical_unnorm_angular_deriv1( npts, shell.l(), tmp, tmp_x, tmp_y, 
+      integrator::cuda::collocation_spherical_unnorm_angular_deriv1( npts, shell.l(), tmp, tmp_x, tmp_y, 
                                                tmp_z, xc, yc, zc, bf_eval, dx_eval, 
                                                dy_eval, dz_eval );
     else
-      collocation_cartesian_angular_deriv1( npts, shell.l(), tmp, tmp_x, tmp_y, tmp_z, 
+      integrator::cuda::collocation_cartesian_angular_deriv1( npts, shell.l(), tmp, tmp_x, tmp_y, tmp_z, 
                                         xc, yc, zc, bf_eval, dx_eval, 
                                         dy_eval, dz_eval );
 

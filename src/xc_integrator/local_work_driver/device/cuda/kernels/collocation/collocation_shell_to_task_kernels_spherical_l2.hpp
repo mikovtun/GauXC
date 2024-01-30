@@ -96,11 +96,11 @@ __global__ __launch_bounds__(512,2) void collocation_device_shell_to_task_kernel
       
 
       // Evaluate basis function
-      basis_eval[ipt + 0*npts] = sqrt_3*radial_eval*x*y;
-      basis_eval[ipt + 1*npts] = sqrt_3*radial_eval*y*z;
+      basis_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*radial_eval*x*y;
+      basis_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*radial_eval*y*z;
       basis_eval[ipt + 2*npts] = radial_eval*(-x*x - y*y + 2*z*z)/2;
-      basis_eval[ipt + 3*npts] = sqrt_3*radial_eval*x*z;
-      basis_eval[ipt + 4*npts] = sqrt_3*radial_eval*(x*x - y*y)/2;
+      basis_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*radial_eval*x*z;
+      basis_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*radial_eval*(x*x - y*y)/2;
 
 
     
