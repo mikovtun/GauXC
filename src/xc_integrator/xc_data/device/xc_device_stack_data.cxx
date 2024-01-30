@@ -132,6 +132,7 @@ void XCDeviceStackData::allocate_static_data_exc_vxc( int32_t nbf, int32_t nshel
   // Get current stack location
   dynmem_ptr = mem.stack();
   dynmem_sz  = mem.nleft(); 
+    
 
   allocated_terms.exc_vxc = true;
 }

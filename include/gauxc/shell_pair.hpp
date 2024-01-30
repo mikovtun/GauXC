@@ -16,7 +16,7 @@ namespace detail {
     double x, y, z;
   };
 
-  static constexpr size_t nprim_pair_max = 64ul;
+  static constexpr size_t nprim_pair_max = 512ul;
 
   template <typename Integral>
   inline intmax_t csr_index( size_t i, size_t j, Integral* row_ptr, Integral* col_ind ) {
