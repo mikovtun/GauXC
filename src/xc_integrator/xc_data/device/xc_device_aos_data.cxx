@@ -626,36 +626,26 @@ void XCDeviceAoSData::pack_and_send(
       }
 
       if(reqt.grid_den_grad) {
-        if(is_rks) {
-          task.dden_sx = dden_sx_mem.aligned_alloc<double>(npts, csl);
-          task.dden_sy = dden_sy_mem.aligned_alloc<double>(npts, csl);
-          task.dden_sz = dden_sz_mem.aligned_alloc<double>(npts, csl);
-        }
-        else if(is_uks) {
-          task.dden_sx    = dden_sx_mem.aligned_alloc<double>( npts, csl );
-          task.dden_sy    = dden_sy_mem.aligned_alloc<double>( npts, csl );
-          task.dden_sz    = dden_sz_mem.aligned_alloc<double>( npts, csl );
+        task.dden_sx = dden_sx_mem.aligned_alloc<double>(npts, csl);
+        task.dden_sy = dden_sy_mem.aligned_alloc<double>(npts, csl);
+        task.dden_sz = dden_sz_mem.aligned_alloc<double>(npts, csl);
+        if( is_pol ) {
           task.dden_zx    = dden_zx_mem.aligned_alloc<double>( npts, csl );
           task.dden_zy    = dden_zy_mem.aligned_alloc<double>( npts, csl );
           task.dden_zz    = dden_zz_mem.aligned_alloc<double>( npts, csl );
-        }
-        else if(is_gks) {
-          task.dden_sx    = dden_sx_mem.aligned_alloc<double>( npts, csl );
-          task.dden_sy    = dden_sy_mem.aligned_alloc<double>( npts, csl );
-          task.dden_sz    = dden_sz_mem.aligned_alloc<double>( npts, csl );
-          task.dden_zx    = dden_zx_mem.aligned_alloc<double>( npts, csl );
-          task.dden_zy    = dden_zy_mem.aligned_alloc<double>( npts, csl );
-          task.dden_zz    = dden_zz_mem.aligned_alloc<double>( npts, csl );
-          task.dden_yx    = dden_yx_mem.aligned_alloc<double>( npts, csl );
-          task.dden_yy    = dden_yy_mem.aligned_alloc<double>( npts, csl );
-          task.dden_yz    = dden_yz_mem.aligned_alloc<double>( npts, csl );
-          task.dden_xx    = dden_xx_mem.aligned_alloc<double>( npts, csl );
-          task.dden_xy    = dden_xy_mem.aligned_alloc<double>( npts, csl );
-          task.dden_xz    = dden_xz_mem.aligned_alloc<double>( npts, csl );
+          if( is_gks ) {
+            task.dden_yx    = dden_yx_mem.aligned_alloc<double>( npts, csl );
+            task.dden_yy    = dden_yy_mem.aligned_alloc<double>( npts, csl );
+            task.dden_yz    = dden_yz_mem.aligned_alloc<double>( npts, csl );
+            task.dden_xx    = dden_xx_mem.aligned_alloc<double>( npts, csl );
+            task.dden_xy    = dden_xy_mem.aligned_alloc<double>( npts, csl );
+            task.dden_xz    = dden_xz_mem.aligned_alloc<double>( npts, csl );
+          }
         }
       }
-
-      if(is_gks) {
+      
+      // H, K terms (GKS)
+      if( is_gks ) {
         task.K_x    = K_x_mem.aligned_alloc<double>( npts, csl );
         task.K_y    = K_y_mem.aligned_alloc<double>( npts, csl );
         task.K_z    = K_z_mem.aligned_alloc<double>( npts, csl );

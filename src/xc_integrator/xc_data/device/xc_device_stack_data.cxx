@@ -707,7 +707,7 @@ size_t XCDeviceStackData::get_mem_req(
     reqt.grid_den_grad_size(npts) * sizeof(double) +
 
     // H/K Matrices (GKS)
-    reqt.grid_HKmats_size(npts)   * sizeof(double) +
+    reqt.grid_HK_size(npts)       * sizeof(double) +
 
     // V Variables
     reqt.grid_gamma_size(npts)    * sizeof(double) +

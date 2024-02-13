@@ -15,8 +15,8 @@
 namespace GauXC {
 
 #define VVAR_KERNEL_SM_BLOCK 32
-#define GGA_KERNEL_SM_WARPS 16
-// TODO: Tune this value?
+#define GGA_KERNEL_SM_WARPS 16    // TODO: Tune this value?
+
 
 __global__ void eval_uvars_lda_rks_kernel( size_t ntasks, XCDeviceTask* tasks_device) {
   const int batch_idx = blockIdx.z;
@@ -322,6 +322,7 @@ void eval_uvars_lda_( size_t ntasks, int32_t npts_max, integrator_ks_scheme ks_s
                ntasks );
   switch ( ks_scheme ) {
     case RKS:
+      // For RKS, our job is already done by eval_vvar
       break;
     case UKS:
       eval_uvars_lda_uks_kernel<<< blocks, threads, 0, stream >>>( ntasks, device_tasks );
