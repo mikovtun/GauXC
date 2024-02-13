@@ -696,6 +696,7 @@ size_t XCDeviceStackData::get_mem_req(
   const size_t npts  = points.size();
 
   required_term_storage reqt(terms);
+  
   size_t mem_req = 
     // Grid
     reqt.grid_points_size (npts)  * sizeof(double) + 
@@ -704,6 +705,9 @@ size_t XCDeviceStackData::get_mem_req(
     // U Variables
     reqt.grid_den_size(npts)      * sizeof(double) + 
     reqt.grid_den_grad_size(npts) * sizeof(double) +
+
+    // H/K Matrices (GKS)
+    reqt.grid_HKmats_size(npts)   * sizeof(double) +
 
     // V Variables
     reqt.grid_gamma_size(npts)    * sizeof(double) +

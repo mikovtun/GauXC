@@ -202,8 +202,8 @@ int main(int argc, char** argv) {
     size_t N_EL_ref = MolMeta(mol).sum_atomic_charges();
     {
       HighFive::File file( ref_file, HighFive::File::ReadOnly );
-      std::string den_str = "/DENSITY";
-      std::string vxc_str = "/VXC";
+      std::string den_str = "/DENSITY_SCALAR";
+      std::string vxc_str = "/VXC_SCALAR";
 
       if (file.exist("/DENSITY_Z") ) { rks = false; }
       if (file.exist("/DENSITY_Z") and not file.exist("/DENSITY_Y") and not file.exist("/DENSITY_X")) {
