@@ -13,6 +13,11 @@
 #include "host/blas.hpp"
 #include <stdexcept>
 
+#if 1
+#include <gauxc/external/hdf5.hpp>
+#include <highfive/H5File.hpp>
+#endif
+
 namespace GauXC  {
 namespace detail {
 
@@ -666,7 +671,47 @@ void ReferenceReplicatedXCHostIntegrator<ValueType>::
       }
     }
   }
+      // Begin BINMAKER section
+      auto outfname = "GAUXC.BIN";
+      { HighFive::File( outfname, HighFive::File::Truncate ); }
+      // Write molecule
+      write_hdf5_record( mol, outfname, "/MOLECULE" );
+      // Write Basis
+      write_hdf5_record( basis, outfname, "/BASIS" );
+      // Write out matrices
+      HighFive::File file( outfname, HighFive::File::ReadWrite );
+      HighFive::DataSpace mat_space( basis.nbf(), basis.nbf() );
+      HighFive::DataSpace sca_space( 1 );
+      std::cout << "MAKING BIN" << std::endl;
+      auto dset = file.createDataSet<double>( "/DENSITY_SCALAR", mat_space );
+      dset.write_raw( Ps );
 
+      dset = file.createDataSet<double>( "/VXC_SCALAR", mat_space );
+      dset.write_raw( VXCs );
+      if(not is_rks) {
+      dset = file.createDataSet<double>( "/DENSITY_Z", mat_space );
+      dset.write_raw( Pz );
+
+      dset = file.createDataSet<double>( "/VXC_Z", mat_space );
+      dset.write_raw( VXCz );
+
+      }
+      if(is_gks) {
+      dset = file.createDataSet<double>( "/DENSITY_X", mat_space );
+      dset.write_raw( Px );
+
+      dset = file.createDataSet<double>( "/VXC_X", mat_space );
+      dset.write_raw( VXCx );
+
+      dset = file.createDataSet<double>( "/DENSITY_Y", mat_space );
+      dset.write_raw( Py );
+
+      dset = file.createDataSet<double>( "/VXC_Y", mat_space );
+      dset.write_raw( VXCy );
+
+      }
+      dset = file.createDataSet<double>( "/EXC", sca_space );
+      dset.write_raw( EXC );
 } 
 
 }
