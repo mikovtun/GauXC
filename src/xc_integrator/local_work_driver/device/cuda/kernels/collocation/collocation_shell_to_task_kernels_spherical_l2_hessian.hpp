@@ -111,76 +111,76 @@ __global__ __launch_bounds__(512,2) void collocation_device_shell_to_task_kernel
       
 
       // Evaluate basis function
-      basis_eval[ipt + 0*npts] = sqrt_3*radial_eval*x*y;
-      basis_eval[ipt + 1*npts] = sqrt_3*radial_eval*y*z;
+      basis_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*radial_eval*x*y;
+      basis_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*radial_eval*y*z;
       basis_eval[ipt + 2*npts] = radial_eval*(-x*x - y*y + 2*z*z)/2;
-      basis_eval[ipt + 3*npts] = sqrt_3*radial_eval*x*z;
-      basis_eval[ipt + 4*npts] = sqrt_3*radial_eval*(x*x - y*y)/2;
+      basis_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*radial_eval*x*z;
+      basis_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*radial_eval*(x*x - y*y)/2;
 
 
     
       // Evaluate first derivative of bfn wrt x
-      basis_x_eval[ipt + 0*npts] = sqrt_3*y*(radial_eval + radial_eval_alpha*x*x);
-      basis_x_eval[ipt + 1*npts] = sqrt_3*radial_eval_alpha*x*y*z;
+      basis_x_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*y*(radial_eval + radial_eval_alpha*x*x);
+      basis_x_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*radial_eval_alpha*x*y*z;
       basis_x_eval[ipt + 2*npts] = x*(-2*radial_eval - radial_eval_alpha*(x*x + y*y - 2*z*z))/2;
-      basis_x_eval[ipt + 3*npts] = sqrt_3*z*(radial_eval + radial_eval_alpha*x*x);
-      basis_x_eval[ipt + 4*npts] = sqrt_3*x*(2*radial_eval + radial_eval_alpha*(x*x - y*y))/2;
+      basis_x_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*z*(radial_eval + radial_eval_alpha*x*x);
+      basis_x_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*x*(2*radial_eval + radial_eval_alpha*(x*x - y*y))/2;
 
       // Evaluate first derivative of bfn wrt y
-      basis_y_eval[ipt + 0*npts] = sqrt_3*x*(radial_eval + radial_eval_alpha*y*y);
-      basis_y_eval[ipt + 1*npts] = sqrt_3*z*(radial_eval + radial_eval_alpha*y*y);
+      basis_y_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*x*(radial_eval + radial_eval_alpha*y*y);
+      basis_y_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*z*(radial_eval + radial_eval_alpha*y*y);
       basis_y_eval[ipt + 2*npts] = y*(-2*radial_eval - radial_eval_alpha*(x*x + y*y - 2*z*z))/2;
-      basis_y_eval[ipt + 3*npts] = sqrt_3*radial_eval_alpha*x*y*z;
-      basis_y_eval[ipt + 4*npts] = sqrt_3*y*(-2*radial_eval + radial_eval_alpha*(x*x - y*y))/2;
+      basis_y_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*radial_eval_alpha*x*y*z;
+      basis_y_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*y*(-2*radial_eval + radial_eval_alpha*(x*x - y*y))/2;
 
       // Evaluate first derivative of bfn wrt z
-      basis_z_eval[ipt + 0*npts] = sqrt_3*radial_eval_alpha*x*y*z;
-      basis_z_eval[ipt + 1*npts] = sqrt_3*y*(radial_eval + radial_eval_alpha*z*z);
+      basis_z_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*radial_eval_alpha*x*y*z;
+      basis_z_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*y*(radial_eval + radial_eval_alpha*z*z);
       basis_z_eval[ipt + 2*npts] = z*(4*radial_eval - radial_eval_alpha*(x*x + y*y - 2*z*z))/2;
-      basis_z_eval[ipt + 3*npts] = sqrt_3*x*(radial_eval + radial_eval_alpha*z*z);
-      basis_z_eval[ipt + 4*npts] = sqrt_3*radial_eval_alpha*z*(x*x - y*y)/2;
+      basis_z_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*x*(radial_eval + radial_eval_alpha*z*z);
+      basis_z_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*radial_eval_alpha*z*(x*x - y*y)/2;
 
       // Evaluate second derivative of bfn wrt xx
-      basis_xx_eval[ipt + 0*npts] = sqrt_3*x*y*(3*radial_eval_alpha + radial_eval_alpha_squared*x*x);
-      basis_xx_eval[ipt + 1*npts] = sqrt_3*y*z*(radial_eval_alpha + radial_eval_alpha_squared*x*x);
+      basis_xx_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*x*y*(3*radial_eval_alpha + radial_eval_alpha_squared*x*x);
+      basis_xx_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*y*z*(radial_eval_alpha + radial_eval_alpha_squared*x*x);
       basis_xx_eval[ipt + 2*npts] = -radial_eval - 2*radial_eval_alpha*x*x - (radial_eval_alpha + radial_eval_alpha_squared*x*x)*(x*x + y*y - 2*z*z)/2;
-      basis_xx_eval[ipt + 3*npts] = sqrt_3*x*z*(3*radial_eval_alpha + radial_eval_alpha_squared*x*x);
-      basis_xx_eval[ipt + 4*npts] = sqrt_3*(radial_eval + 2*radial_eval_alpha*x*x + (radial_eval_alpha + radial_eval_alpha_squared*x*x)*(x*x - y*y)/2);
+      basis_xx_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*x*z*(3*radial_eval_alpha + radial_eval_alpha_squared*x*x);
+      basis_xx_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*(radial_eval + 2*radial_eval_alpha*x*x + (radial_eval_alpha + radial_eval_alpha_squared*x*x)*(x*x - y*y)/2);
 
       // Evaluate second derivative of bfn wrt xy
-      basis_xy_eval[ipt + 0*npts] = sqrt_3*(radial_eval + radial_eval_alpha*x*x + radial_eval_alpha*y*y + radial_eval_alpha_squared*x*x*y*y);
-      basis_xy_eval[ipt + 1*npts] = sqrt_3*x*z*(radial_eval_alpha + radial_eval_alpha_squared*y*y);
+      basis_xy_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*(radial_eval + radial_eval_alpha*x*x + radial_eval_alpha*y*y + radial_eval_alpha_squared*x*x*y*y);
+      basis_xy_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*x*z*(radial_eval_alpha + radial_eval_alpha_squared*y*y);
       basis_xy_eval[ipt + 2*npts] = x*y*(-4*radial_eval_alpha - radial_eval_alpha_squared*(x*x + y*y - 2*z*z))/2;
-      basis_xy_eval[ipt + 3*npts] = sqrt_3*y*z*(radial_eval_alpha + radial_eval_alpha_squared*x*x);
-      basis_xy_eval[ipt + 4*npts] = sqrt_3*radial_eval_alpha_squared*x*y*(x*x - y*y)/2;
+      basis_xy_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*y*z*(radial_eval_alpha + radial_eval_alpha_squared*x*x);
+      basis_xy_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*radial_eval_alpha_squared*x*y*(x*x - y*y)/2;
 
       // Evaluate second derivative of bfn wrt xz
-      basis_xz_eval[ipt + 0*npts] = sqrt_3*y*z*(radial_eval_alpha + radial_eval_alpha_squared*x*x);
-      basis_xz_eval[ipt + 1*npts] = sqrt_3*x*y*(radial_eval_alpha + radial_eval_alpha_squared*z*z);
+      basis_xz_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*y*z*(radial_eval_alpha + radial_eval_alpha_squared*x*x);
+      basis_xz_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*x*y*(radial_eval_alpha + radial_eval_alpha_squared*z*z);
       basis_xz_eval[ipt + 2*npts] = x*z*(2*radial_eval_alpha - radial_eval_alpha_squared*(x*x + y*y - 2*z*z))/2;
-      basis_xz_eval[ipt + 3*npts] = sqrt_3*(radial_eval + radial_eval_alpha*x*x + radial_eval_alpha*z*z + radial_eval_alpha_squared*x*x*z*z);
-      basis_xz_eval[ipt + 4*npts] = sqrt_3*x*z*(2*radial_eval_alpha + radial_eval_alpha_squared*(x*x - y*y))/2;
+      basis_xz_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*(radial_eval + radial_eval_alpha*x*x + radial_eval_alpha*z*z + radial_eval_alpha_squared*x*x*z*z);
+      basis_xz_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*x*z*(2*radial_eval_alpha + radial_eval_alpha_squared*(x*x - y*y))/2;
 
       // Evaluate second derivative of bfn wrt yy
-      basis_yy_eval[ipt + 0*npts] = sqrt_3*x*y*(3*radial_eval_alpha + radial_eval_alpha_squared*y*y);
-      basis_yy_eval[ipt + 1*npts] = sqrt_3*y*z*(3*radial_eval_alpha + radial_eval_alpha_squared*y*y);
+      basis_yy_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*x*y*(3*radial_eval_alpha + radial_eval_alpha_squared*y*y);
+      basis_yy_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*y*z*(3*radial_eval_alpha + radial_eval_alpha_squared*y*y);
       basis_yy_eval[ipt + 2*npts] = -radial_eval - 2*radial_eval_alpha*y*y - (radial_eval_alpha + radial_eval_alpha_squared*y*y)*(x*x + y*y - 2*z*z)/2;
-      basis_yy_eval[ipt + 3*npts] = sqrt_3*x*z*(radial_eval_alpha + radial_eval_alpha_squared*y*y);
-      basis_yy_eval[ipt + 4*npts] = sqrt_3*(-radial_eval - 2*radial_eval_alpha*y*y + (radial_eval_alpha + radial_eval_alpha_squared*y*y)*(x*x - y*y)/2);
+      basis_yy_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*x*z*(radial_eval_alpha + radial_eval_alpha_squared*y*y);
+      basis_yy_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*(-radial_eval - 2*radial_eval_alpha*y*y + (radial_eval_alpha + radial_eval_alpha_squared*y*y)*(x*x - y*y)/2);
 
       // Evaluate second derivative of bfn wrt yz
-      basis_yz_eval[ipt + 0*npts] = sqrt_3*x*z*(radial_eval_alpha + radial_eval_alpha_squared*y*y);
-      basis_yz_eval[ipt + 1*npts] = sqrt_3*(radial_eval + radial_eval_alpha*y*y + radial_eval_alpha*z*z + radial_eval_alpha_squared*y*y*z*z);
+      basis_yz_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*x*z*(radial_eval_alpha + radial_eval_alpha_squared*y*y);
+      basis_yz_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*(radial_eval + radial_eval_alpha*y*y + radial_eval_alpha*z*z + radial_eval_alpha_squared*y*y*z*z);
       basis_yz_eval[ipt + 2*npts] = y*z*(2*radial_eval_alpha - radial_eval_alpha_squared*(x*x + y*y - 2*z*z))/2;
-      basis_yz_eval[ipt + 3*npts] = sqrt_3*x*y*(radial_eval_alpha + radial_eval_alpha_squared*z*z);
-      basis_yz_eval[ipt + 4*npts] = sqrt_3*y*z*(-2*radial_eval_alpha + radial_eval_alpha_squared*(x*x - y*y))/2;
+      basis_yz_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*x*y*(radial_eval_alpha + radial_eval_alpha_squared*z*z);
+      basis_yz_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*y*z*(-2*radial_eval_alpha + radial_eval_alpha_squared*(x*x - y*y))/2;
 
       // Evaluate second derivative of bfn wrt zz
-      basis_zz_eval[ipt + 0*npts] = sqrt_3*x*y*(radial_eval_alpha + radial_eval_alpha_squared*z*z);
-      basis_zz_eval[ipt + 1*npts] = sqrt_3*y*z*(3*radial_eval_alpha + radial_eval_alpha_squared*z*z);
+      basis_zz_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*x*y*(radial_eval_alpha + radial_eval_alpha_squared*z*z);
+      basis_zz_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*y*z*(3*radial_eval_alpha + radial_eval_alpha_squared*z*z);
       basis_zz_eval[ipt + 2*npts] = 2*radial_eval + 4*radial_eval_alpha*z*z - (radial_eval_alpha + radial_eval_alpha_squared*z*z)*(x*x + y*y - 2*z*z)/2;
-      basis_zz_eval[ipt + 3*npts] = sqrt_3*x*z*(3*radial_eval_alpha + radial_eval_alpha_squared*z*z);
-      basis_zz_eval[ipt + 4*npts] = sqrt_3*(radial_eval_alpha + radial_eval_alpha_squared*z*z)*(x*x - y*y)/2;
+      basis_zz_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*x*z*(3*radial_eval_alpha + radial_eval_alpha_squared*z*z);
+      basis_zz_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*(radial_eval_alpha + radial_eval_alpha_squared*z*z)*(x*x - y*y)/2;
 
 
 
@@ -196,16 +196,16 @@ __global__ __launch_bounds__(512,2) void collocation_device_shell_to_task_kernel
       double ang_eval_3;
 
 
-      ang_eval_0 = sqrt_3*radial_eval*x*y;
-      ang_eval_1 = sqrt_3*radial_eval*y*z;
+      ang_eval_0 = integrator::cuda::sqrt_3*radial_eval*x*y;
+      ang_eval_1 = integrator::cuda::sqrt_3*radial_eval*y*z;
       ang_eval_2 = radial_eval*(-x*x - y*y + 2*z*z)/2;
-      ang_eval_3 = sqrt_3*radial_eval*x*z;
+      ang_eval_3 = integrator::cuda::sqrt_3*radial_eval*x*z;
       basis_eval[ipt + 0*npts] = ang_eval_0;
       basis_eval[ipt + 1*npts] = ang_eval_1;
       basis_eval[ipt + 2*npts] = ang_eval_2;
       basis_eval[ipt + 3*npts] = ang_eval_3;
 
-      ang_eval_0 = sqrt_3*radial_eval*(x*x - y*y)/2;
+      ang_eval_0 = integrator::cuda::sqrt_3*radial_eval*(x*x - y*y)/2;
       basis_eval[ipt + 4*npts] = ang_eval_0;
 
 
@@ -214,18 +214,18 @@ __global__ __launch_bounds__(512,2) void collocation_device_shell_to_task_kernel
       double dang_eval_x_2, dang_eval_y_2, dang_eval_z_2;
       double dang_eval_x_3, dang_eval_y_3, dang_eval_z_3;
 
-      dang_eval_x_0 = sqrt_3*y*(radial_eval + radial_eval_alpha*x*x);
-      dang_eval_y_0 = sqrt_3*x*(radial_eval + radial_eval_alpha*y*y);
-      dang_eval_z_0 = sqrt_3*radial_eval_alpha*x*y*z;
-      dang_eval_x_1 = sqrt_3*radial_eval_alpha*x*y*z;
-      dang_eval_y_1 = sqrt_3*z*(radial_eval + radial_eval_alpha*y*y);
-      dang_eval_z_1 = sqrt_3*y*(radial_eval + radial_eval_alpha*z*z);
+      dang_eval_x_0 = integrator::cuda::sqrt_3*y*(radial_eval + radial_eval_alpha*x*x);
+      dang_eval_y_0 = integrator::cuda::sqrt_3*x*(radial_eval + radial_eval_alpha*y*y);
+      dang_eval_z_0 = integrator::cuda::sqrt_3*radial_eval_alpha*x*y*z;
+      dang_eval_x_1 = integrator::cuda::sqrt_3*radial_eval_alpha*x*y*z;
+      dang_eval_y_1 = integrator::cuda::sqrt_3*z*(radial_eval + radial_eval_alpha*y*y);
+      dang_eval_z_1 = integrator::cuda::sqrt_3*y*(radial_eval + radial_eval_alpha*z*z);
       dang_eval_x_2 = x*(-2*radial_eval - radial_eval_alpha*(x*x + y*y - 2*z*z))/2;
       dang_eval_y_2 = y*(-2*radial_eval - radial_eval_alpha*(x*x + y*y - 2*z*z))/2;
       dang_eval_z_2 = z*(4*radial_eval - radial_eval_alpha*(x*x + y*y - 2*z*z))/2;
-      dang_eval_x_3 = sqrt_3*z*(radial_eval + radial_eval_alpha*x*x);
-      dang_eval_y_3 = sqrt_3*radial_eval_alpha*x*y*z;
-      dang_eval_z_3 = sqrt_3*x*(radial_eval + radial_eval_alpha*z*z);
+      dang_eval_x_3 = integrator::cuda::sqrt_3*z*(radial_eval + radial_eval_alpha*x*x);
+      dang_eval_y_3 = integrator::cuda::sqrt_3*radial_eval_alpha*x*y*z;
+      dang_eval_z_3 = integrator::cuda::sqrt_3*x*(radial_eval + radial_eval_alpha*z*z);
       basis_x_eval[ipt + 0*npts] = dang_eval_x_0;
       basis_y_eval[ipt + 0*npts] = dang_eval_y_0;
       basis_z_eval[ipt + 0*npts] = dang_eval_z_0;
@@ -239,9 +239,9 @@ __global__ __launch_bounds__(512,2) void collocation_device_shell_to_task_kernel
       basis_y_eval[ipt + 3*npts] = dang_eval_y_3;
       basis_z_eval[ipt + 3*npts] = dang_eval_z_3;
 
-      dang_eval_x_0 = sqrt_3*x*(2*radial_eval + radial_eval_alpha*(x*x - y*y))/2;
-      dang_eval_y_0 = sqrt_3*y*(-2*radial_eval + radial_eval_alpha*(x*x - y*y))/2;
-      dang_eval_z_0 = sqrt_3*radial_eval_alpha*z*(x*x - y*y)/2;
+      dang_eval_x_0 = integrator::cuda::sqrt_3*x*(2*radial_eval + radial_eval_alpha*(x*x - y*y))/2;
+      dang_eval_y_0 = integrator::cuda::sqrt_3*y*(-2*radial_eval + radial_eval_alpha*(x*x - y*y))/2;
+      dang_eval_z_0 = integrator::cuda::sqrt_3*radial_eval_alpha*z*(x*x - y*y)/2;
       basis_x_eval[ipt + 4*npts] = dang_eval_x_0;
       basis_y_eval[ipt + 4*npts] = dang_eval_y_0;
       basis_z_eval[ipt + 4*npts] = dang_eval_z_0;

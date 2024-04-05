@@ -96,11 +96,11 @@ __global__ __launch_bounds__(512,2) void collocation_device_shell_to_task_kernel
       
 
       // Evaluate basis function
-      basis_eval[ipt + 0*npts] = sqrt_3*radial_eval*x*y;
-      basis_eval[ipt + 1*npts] = sqrt_3*radial_eval*y*z;
+      basis_eval[ipt + 0*npts] = integrator::cuda::sqrt_3*radial_eval*x*y;
+      basis_eval[ipt + 1*npts] = integrator::cuda::sqrt_3*radial_eval*y*z;
       basis_eval[ipt + 2*npts] = radial_eval*(-x*x - y*y + 2*z*z)/2;
-      basis_eval[ipt + 3*npts] = sqrt_3*radial_eval*x*z;
-      basis_eval[ipt + 4*npts] = sqrt_3*radial_eval*(x*x - y*y)/2;
+      basis_eval[ipt + 3*npts] = integrator::cuda::sqrt_3*radial_eval*x*z;
+      basis_eval[ipt + 4*npts] = integrator::cuda::sqrt_3*radial_eval*(x*x - y*y)/2;
 
 
     
@@ -120,16 +120,16 @@ __global__ __launch_bounds__(512,2) void collocation_device_shell_to_task_kernel
       double ang_eval_3;
 
 
-      ang_eval_0 = sqrt_3*radial_eval*x*y;
-      ang_eval_1 = sqrt_3*radial_eval*y*z;
+      ang_eval_0 = integrator::cuda::sqrt_3*radial_eval*x*y;
+      ang_eval_1 = integrator::cuda::sqrt_3*radial_eval*y*z;
       ang_eval_2 = radial_eval*(-x*x - y*y + 2*z*z)/2;
-      ang_eval_3 = sqrt_3*radial_eval*x*z;
+      ang_eval_3 = integrator::cuda::sqrt_3*radial_eval*x*z;
       basis_eval[ipt + 0*npts] = ang_eval_0;
       basis_eval[ipt + 1*npts] = ang_eval_1;
       basis_eval[ipt + 2*npts] = ang_eval_2;
       basis_eval[ipt + 3*npts] = ang_eval_3;
 
-      ang_eval_0 = sqrt_3*radial_eval*(x*x - y*y)/2;
+      ang_eval_0 = integrator::cuda::sqrt_3*radial_eval*(x*x - y*y)/2;
       basis_eval[ipt + 4*npts] = ang_eval_0;
 
 
