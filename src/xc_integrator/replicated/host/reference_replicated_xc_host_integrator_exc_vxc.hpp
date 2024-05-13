@@ -16,6 +16,9 @@
 #if 1
 #include <gauxc/external/hdf5.hpp>
 #include <highfive/H5File.hpp>
+#include <iomanip>
+#include <ctime>
+#include <sstream>
 #endif
 
 namespace GauXC  {
@@ -671,8 +674,15 @@ void ReferenceReplicatedXCHostIntegrator<ValueType>::
       }
     }
   }
+      
+  
       // Begin BINMAKER section
-      auto outfname = "GAUXC.BIN";
+      auto t = std::time(nullptr);
+      auto tm = *std::localtime(&t);
+      std::ostringstream oss;
+      oss << std::put_time(&tm, "%m-%d-%Y_%H-%M-%S");
+      auto timestr = oss.str();
+      std::string outfname = "GAUXC-" + timestr + ".BIN";
       { HighFive::File( outfname, HighFive::File::Truncate ); }
       // Write molecule
       write_hdf5_record( mol, outfname, "/MOLECULE" );
