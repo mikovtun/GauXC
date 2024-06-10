@@ -142,7 +142,7 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
   // Check that Partition Weights have been calculated
   auto& lb_state = this->load_balancer_->state();
   if( not lb_state.modified_weights_are_stored ) {
-    GAUXC_GENERIC_EXCEPTION("Weights Have Not Beed Modified"); 
+    GAUXC_GENERIC_EXCEPTION("Weights Have Not Been Modified"); 
   }
 
   // Reset the coulomb screening data
@@ -254,7 +254,7 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
   // Check that Partition Weights have been calculated
   auto& lb_state = this->load_balancer_->state();
   if( not lb_state.modified_weights_are_stored ) {
-    GAUXC_GENERIC_EXCEPTION("Weights Have Not Beed Modified"); 
+    GAUXC_GENERIC_EXCEPTION("Weights Have Not Been Modified"); 
   }
 
     task_end = std::stable_partition( task_begin, task_end,
@@ -354,7 +354,7 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
 
   // Do EXX integration in task batches
   device_data.reset_allocations();
-  device_data.allocate_static_data_exx( nbf, nshells, shell_pairs.npairs(), basis_map.max_l() );
+  device_data.allocate_static_data_exx( nbf, nshells, shell_pairs.npairs(), shell_pairs.nprim_pair_total(), basis_map.max_l() );
   device_data.send_static_data_density_basis( P, ldp, nullptr, 0, nullptr, 0, nullptr, 0, basis );
   device_data.send_static_data_shell_pairs( basis, shell_pairs );
 

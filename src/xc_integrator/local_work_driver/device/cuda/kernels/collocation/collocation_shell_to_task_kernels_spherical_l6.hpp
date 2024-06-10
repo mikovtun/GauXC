@@ -96,19 +96,19 @@ __global__ __launch_bounds__(512,2) void collocation_device_shell_to_task_kernel
       
 
       // Evaluate basis function
-      basis_eval[ipt + 0*npts] = integrator::cuda::sqrt_462*radial_eval*x*y*(3*x*x*x*x - 10*x*x*y*y + 3*y*y*y*y)/16;
-      basis_eval[ipt + 1*npts] = 3*integrator::cuda::sqrt_154*radial_eval*y*z*(5*x*x*x*x - 10*x*x*y*y + y*y*y*y)/16;
-      basis_eval[ipt + 2*npts] = 3*integrator::cuda::sqrt_7*radial_eval*x*y*(-x*x*x*x + 10*x*x*z*z + y*y*y*y - 10*y*y*z*z)/4;
-      basis_eval[ipt + 3*npts] = integrator::cuda::sqrt_210*radial_eval*y*z*(-9*x*x*x*x - 6*x*x*y*y + 24*x*x*z*z + 3*y*y*y*y - 8*y*y*z*z)/16;
-      basis_eval[ipt + 4*npts] = integrator::cuda::sqrt_210*radial_eval*x*y*(x*x*x*x + 2*x*x*y*y - 16*x*x*z*z + y*y*y*y - 16*y*y*z*z + 16*z*z*z*z)/16;
-      basis_eval[ipt + 5*npts] = integrator::cuda::sqrt_21*radial_eval*y*z*(5*x*x*x*x + 10*x*x*y*y - 20*x*x*z*z + 5*y*y*y*y - 20*y*y*z*z + 8*z*z*z*z)/8;
+      basis_eval[ipt + 0*npts] = sqrt_462*radial_eval*x*y*(3*x*x*x*x - 10*x*x*y*y + 3*y*y*y*y)/16;
+      basis_eval[ipt + 1*npts] = 3*sqrt_154*radial_eval*y*z*(5*x*x*x*x - 10*x*x*y*y + y*y*y*y)/16;
+      basis_eval[ipt + 2*npts] = 3*sqrt_7*radial_eval*x*y*(-x*x*x*x + 10*x*x*z*z + y*y*y*y - 10*y*y*z*z)/4;
+      basis_eval[ipt + 3*npts] = sqrt_210*radial_eval*y*z*(-9*x*x*x*x - 6*x*x*y*y + 24*x*x*z*z + 3*y*y*y*y - 8*y*y*z*z)/16;
+      basis_eval[ipt + 4*npts] = sqrt_210*radial_eval*x*y*(x*x*x*x + 2*x*x*y*y - 16*x*x*z*z + y*y*y*y - 16*y*y*z*z + 16*z*z*z*z)/16;
+      basis_eval[ipt + 5*npts] = sqrt_21*radial_eval*y*z*(5*x*x*x*x + 10*x*x*y*y - 20*x*x*z*z + 5*y*y*y*y - 20*y*y*z*z + 8*z*z*z*z)/8;
       basis_eval[ipt + 6*npts] = radial_eval*(-5*x*x*x*x*x*x - 15*x*x*x*x*y*y + 90*x*x*x*x*z*z - 15*x*x*y*y*y*y + 180*x*x*y*y*z*z - 120*x*x*z*z*z*z - 5*y*y*y*y*y*y + 90*y*y*y*y*z*z - 120*y*y*z*z*z*z + 16*z*z*z*z*z*z)/16;
-      basis_eval[ipt + 7*npts] = integrator::cuda::sqrt_21*radial_eval*x*z*(5*x*x*x*x + 10*x*x*y*y - 20*x*x*z*z + 5*y*y*y*y - 20*y*y*z*z + 8*z*z*z*z)/8;
-      basis_eval[ipt + 8*npts] = integrator::cuda::sqrt_210*radial_eval*(x*x*x*x*x*x + x*x*x*x*y*y - 16*x*x*x*x*z*z - x*x*y*y*y*y + 16*x*x*z*z*z*z - y*y*y*y*y*y + 16*y*y*y*y*z*z - 16*y*y*z*z*z*z)/32;
-      basis_eval[ipt + 9*npts] = integrator::cuda::sqrt_210*radial_eval*x*z*(-3*x*x*x*x + 6*x*x*y*y + 8*x*x*z*z + 9*y*y*y*y - 24*y*y*z*z)/16;
-      basis_eval[ipt + 10*npts] = 3*integrator::cuda::sqrt_7*radial_eval*(-x*x*x*x*x*x + 5*x*x*x*x*y*y + 10*x*x*x*x*z*z + 5*x*x*y*y*y*y - 60*x*x*y*y*z*z - y*y*y*y*y*y + 10*y*y*y*y*z*z)/16;
-      basis_eval[ipt + 11*npts] = 3*integrator::cuda::sqrt_154*radial_eval*x*z*(x*x*x*x - 10*x*x*y*y + 5*y*y*y*y)/16;
-      basis_eval[ipt + 12*npts] = integrator::cuda::sqrt_462*radial_eval*(x*x*x*x*x*x - 15*x*x*x*x*y*y + 15*x*x*y*y*y*y - y*y*y*y*y*y)/32;
+      basis_eval[ipt + 7*npts] = sqrt_21*radial_eval*x*z*(5*x*x*x*x + 10*x*x*y*y - 20*x*x*z*z + 5*y*y*y*y - 20*y*y*z*z + 8*z*z*z*z)/8;
+      basis_eval[ipt + 8*npts] = sqrt_210*radial_eval*(x*x*x*x*x*x + x*x*x*x*y*y - 16*x*x*x*x*z*z - x*x*y*y*y*y + 16*x*x*z*z*z*z - y*y*y*y*y*y + 16*y*y*y*y*z*z - 16*y*y*z*z*z*z)/32;
+      basis_eval[ipt + 9*npts] = sqrt_210*radial_eval*x*z*(-3*x*x*x*x + 6*x*x*y*y + 8*x*x*z*z + 9*y*y*y*y - 24*y*y*z*z)/16;
+      basis_eval[ipt + 10*npts] = 3*sqrt_7*radial_eval*(-x*x*x*x*x*x + 5*x*x*x*x*y*y + 10*x*x*x*x*z*z + 5*x*x*y*y*y*y - 60*x*x*y*y*z*z - y*y*y*y*y*y + 10*y*y*y*y*z*z)/16;
+      basis_eval[ipt + 11*npts] = 3*sqrt_154*radial_eval*x*z*(x*x*x*x - 10*x*x*y*y + 5*y*y*y*y)/16;
+      basis_eval[ipt + 12*npts] = sqrt_462*radial_eval*(x*x*x*x*x*x - 15*x*x*x*x*y*y + 15*x*x*y*y*y*y - y*y*y*y*y*y)/32;
 
 
     
@@ -128,34 +128,34 @@ __global__ __launch_bounds__(512,2) void collocation_device_shell_to_task_kernel
       double ang_eval_3;
 
 
-      ang_eval_0 = integrator::cuda::sqrt_462*radial_eval*x*y*(3*x*x*x*x - 10*x*x*y*y + 3*y*y*y*y)/16;
-      ang_eval_1 = 3*integrator::cuda::sqrt_154*radial_eval*y*z*(5*x*x*x*x - 10*x*x*y*y + y*y*y*y)/16;
-      ang_eval_2 = 3*integrator::cuda::sqrt_7*radial_eval*x*y*(-x*x*x*x + 10*x*x*z*z + y*y*y*y - 10*y*y*z*z)/4;
-      ang_eval_3 = integrator::cuda::sqrt_210*radial_eval*y*z*(-9*x*x*x*x - 6*x*x*y*y + 24*x*x*z*z + 3*y*y*y*y - 8*y*y*z*z)/16;
+      ang_eval_0 = sqrt_462*radial_eval*x*y*(3*x*x*x*x - 10*x*x*y*y + 3*y*y*y*y)/16;
+      ang_eval_1 = 3*sqrt_154*radial_eval*y*z*(5*x*x*x*x - 10*x*x*y*y + y*y*y*y)/16;
+      ang_eval_2 = 3*sqrt_7*radial_eval*x*y*(-x*x*x*x + 10*x*x*z*z + y*y*y*y - 10*y*y*z*z)/4;
+      ang_eval_3 = sqrt_210*radial_eval*y*z*(-9*x*x*x*x - 6*x*x*y*y + 24*x*x*z*z + 3*y*y*y*y - 8*y*y*z*z)/16;
       basis_eval[ipt + 0*npts] = ang_eval_0;
       basis_eval[ipt + 1*npts] = ang_eval_1;
       basis_eval[ipt + 2*npts] = ang_eval_2;
       basis_eval[ipt + 3*npts] = ang_eval_3;
 
-      ang_eval_0 = integrator::cuda::sqrt_210*radial_eval*x*y*(x*x*x*x + 2*x*x*y*y - 16*x*x*z*z + y*y*y*y - 16*y*y*z*z + 16*z*z*z*z)/16;
-      ang_eval_1 = integrator::cuda::sqrt_21*radial_eval*y*z*(5*x*x*x*x + 10*x*x*y*y - 20*x*x*z*z + 5*y*y*y*y - 20*y*y*z*z + 8*z*z*z*z)/8;
+      ang_eval_0 = sqrt_210*radial_eval*x*y*(x*x*x*x + 2*x*x*y*y - 16*x*x*z*z + y*y*y*y - 16*y*y*z*z + 16*z*z*z*z)/16;
+      ang_eval_1 = sqrt_21*radial_eval*y*z*(5*x*x*x*x + 10*x*x*y*y - 20*x*x*z*z + 5*y*y*y*y - 20*y*y*z*z + 8*z*z*z*z)/8;
       ang_eval_2 = radial_eval*(-5*x*x*x*x*x*x - 15*x*x*x*x*y*y + 90*x*x*x*x*z*z - 15*x*x*y*y*y*y + 180*x*x*y*y*z*z - 120*x*x*z*z*z*z - 5*y*y*y*y*y*y + 90*y*y*y*y*z*z - 120*y*y*z*z*z*z + 16*z*z*z*z*z*z)/16;
-      ang_eval_3 = integrator::cuda::sqrt_21*radial_eval*x*z*(5*x*x*x*x + 10*x*x*y*y - 20*x*x*z*z + 5*y*y*y*y - 20*y*y*z*z + 8*z*z*z*z)/8;
+      ang_eval_3 = sqrt_21*radial_eval*x*z*(5*x*x*x*x + 10*x*x*y*y - 20*x*x*z*z + 5*y*y*y*y - 20*y*y*z*z + 8*z*z*z*z)/8;
       basis_eval[ipt + 4*npts] = ang_eval_0;
       basis_eval[ipt + 5*npts] = ang_eval_1;
       basis_eval[ipt + 6*npts] = ang_eval_2;
       basis_eval[ipt + 7*npts] = ang_eval_3;
 
-      ang_eval_0 = integrator::cuda::sqrt_210*radial_eval*(x*x*x*x*x*x + x*x*x*x*y*y - 16*x*x*x*x*z*z - x*x*y*y*y*y + 16*x*x*z*z*z*z - y*y*y*y*y*y + 16*y*y*y*y*z*z - 16*y*y*z*z*z*z)/32;
-      ang_eval_1 = integrator::cuda::sqrt_210*radial_eval*x*z*(-3*x*x*x*x + 6*x*x*y*y + 8*x*x*z*z + 9*y*y*y*y - 24*y*y*z*z)/16;
-      ang_eval_2 = 3*integrator::cuda::sqrt_7*radial_eval*(-x*x*x*x*x*x + 5*x*x*x*x*y*y + 10*x*x*x*x*z*z + 5*x*x*y*y*y*y - 60*x*x*y*y*z*z - y*y*y*y*y*y + 10*y*y*y*y*z*z)/16;
-      ang_eval_3 = 3*integrator::cuda::sqrt_154*radial_eval*x*z*(x*x*x*x - 10*x*x*y*y + 5*y*y*y*y)/16;
+      ang_eval_0 = sqrt_210*radial_eval*(x*x*x*x*x*x + x*x*x*x*y*y - 16*x*x*x*x*z*z - x*x*y*y*y*y + 16*x*x*z*z*z*z - y*y*y*y*y*y + 16*y*y*y*y*z*z - 16*y*y*z*z*z*z)/32;
+      ang_eval_1 = sqrt_210*radial_eval*x*z*(-3*x*x*x*x + 6*x*x*y*y + 8*x*x*z*z + 9*y*y*y*y - 24*y*y*z*z)/16;
+      ang_eval_2 = 3*sqrt_7*radial_eval*(-x*x*x*x*x*x + 5*x*x*x*x*y*y + 10*x*x*x*x*z*z + 5*x*x*y*y*y*y - 60*x*x*y*y*z*z - y*y*y*y*y*y + 10*y*y*y*y*z*z)/16;
+      ang_eval_3 = 3*sqrt_154*radial_eval*x*z*(x*x*x*x - 10*x*x*y*y + 5*y*y*y*y)/16;
       basis_eval[ipt + 8*npts] = ang_eval_0;
       basis_eval[ipt + 9*npts] = ang_eval_1;
       basis_eval[ipt + 10*npts] = ang_eval_2;
       basis_eval[ipt + 11*npts] = ang_eval_3;
 
-      ang_eval_0 = integrator::cuda::sqrt_462*radial_eval*(x*x*x*x*x*x - 15*x*x*x*x*y*y + 15*x*x*y*y*y*y - y*y*y*y*y*y)/32;
+      ang_eval_0 = sqrt_462*radial_eval*(x*x*x*x*x*x - 15*x*x*x*x*y*y + 15*x*x*y*y*y*y - y*y*y*y*y*y)/32;
       basis_eval[ipt + 12*npts] = ang_eval_0;
 
 

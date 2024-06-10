@@ -19,6 +19,7 @@ namespace GauXC {
 struct allocated_dims {
   size_t nshells      = 0; ///< Number of shells allocated for static data
   size_t nshell_pairs = 0; ///< Number of shell pairs allocated for static data
+  size_t nprim_pairs  = 0; ///< Total number of prim pairs allocated 
   size_t nbf          = 0; ///< Number of bfns allocated for static data
   size_t natoms       = 0; ///< Number of atoms allocated for static data
   size_t max_l        = 0; ///< Highest angular momentum value used
@@ -44,7 +45,7 @@ struct XCDeviceStackData : public XCDeviceData {
 
   struct static_data {
     Shell<double>* shells_device = nullptr; ///< Array of static basis shells (nshells)
-    ShellPair<double>* shell_pairs_device = nullptr;
+    PrimitivePair<double>* prim_pairs_device = nullptr;
 
     double* rab_device    = nullptr; ///< Static RAB matrix storage (*,natoms)
     double* coords_device = nullptr; ///< Static atomic positions (3 * natoms)
@@ -113,12 +114,16 @@ struct XCDeviceStackData : public XCDeviceData {
     
     double* den_eval_device     = nullptr; /// Storage for interleaved density (non-RKS only)
 
+    double* den_lapl_eval_device = nullptr; ///< density Laplacian for task batch
 
     // V variables / XC output
     double* gamma_eval_device  = nullptr; ///< gamma for task batch
+    double* tau_eval_device    = nullptr; ///< tau for task batch
     double* eps_eval_device    = nullptr; ///< XC energy density for task batch
     double* vrho_eval_device   = nullptr; ///< Rho XC derivative for task batch
     double* vgamma_eval_device = nullptr; ///< Gamma XC derivative for task batch
+    double* vtau_eval_device   = nullptr; ///< Tau XC derivative for task batch
+    double* vlapl_eval_device  = nullptr; ///< Lapl XC derivative for task batch
 
     double* vrho_pos_eval_device  = nullptr;  ///< Polarized Rho+ XC derivative for task batch
     double* vrho_neg_eval_device  = nullptr;  ///< Polarized Rho+ XC derivative for task batch
@@ -155,10 +160,10 @@ struct XCDeviceStackData : public XCDeviceData {
   host_task_iterator generate_buffers( integrator_term_tracker, const BasisSetMap&,
     host_task_iterator, host_task_iterator) override final;
   void allocate_static_data_weights( int32_t natoms ) override final;
-  void allocate_static_data_exc_vxc( int32_t nbf, int32_t nshells, integrator_term_tracker enabled_terms ) override final;
+  void allocate_static_data_exc_vxc( int32_t nbf, int32_t nshells, integrator_term_tracker enabled_terms, bool do_vxc ) override final;
   void allocate_static_data_den( int32_t nbf, int32_t nshells ) override final;
   void allocate_static_data_exc_grad( int32_t nbf, int32_t nshells, int32_t natoms ) override final;
-  void allocate_static_data_exx( int32_t nbf, int32_t nshells, size_t nshell_pairs, int32_t max_l ) override final;
+  void allocate_static_data_exx( int32_t nbf, int32_t nshells, size_t nshell_pairs, size_t nprim_pair_total, int32_t max_l ) override final;
   void allocate_static_data_exx_ek_screening( size_t ntasks, int32_t nbf, int32_t nshells, int nshell_pairs, int32_t max_l ) override final;
   void send_static_data_weights( const Molecule& mol, const MolMeta& meta ) override final;
   void send_static_data_density_basis( const double* Ps, int32_t ldps, const double* Pz, int32_t ldpz,

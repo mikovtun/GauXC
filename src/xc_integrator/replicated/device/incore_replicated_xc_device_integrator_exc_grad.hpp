@@ -99,7 +99,7 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
   // Check that Partition Weights have been calculated
   auto& lb_state = this->load_balancer_->state();
   if( not lb_state.modified_weights_are_stored ) {
-    GAUXC_GENERIC_EXCEPTION("Weights Have Not Beed Modified"); 
+    GAUXC_GENERIC_EXCEPTION("Weights Have Not Been Modified"); 
   }
 
   // Do XC integration in task batches
@@ -139,7 +139,7 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
     lwd->eval_xmat( 2.0, &device_data, do_xmat_grad, DEN_S );
     
     // Evaluate V variable
-    lwd->eval_vvar( &device_data, do_xmat_grad, DEN_S );
+    lwd->eval_vvar( &device_data, DEN_S, do_xmat_grad );
 
     // Evaluate U variables
     if( func.is_gga() ) lwd->eval_uvars_gga( &device_data, enabled_terms.ks_scheme );

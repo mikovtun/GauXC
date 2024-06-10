@@ -54,9 +54,10 @@ size_t XCDeviceAoSData::get_mem_req( integrator_term_tracker terms,
     reqt.task_bfn_size     ( nbe_bfn, npts ) * sizeof(double) +
     reqt.task_bfn_grad_size( nbe_bfn, npts ) * sizeof(double) +
     reqt.task_bfn_hess_size( nbe_bfn, npts ) * sizeof(double) +
+    reqt.task_bfn_lapl_size( nbe_bfn, npts ) * sizeof(double) +
 
     // LDA/GGA Z Matrix
-    reqt.task_zmat_lda_gga_size( nbe_bfn, npts ) * sizeof(double) +
+    reqt.task_zmat_size( nbe_bfn, npts ) * sizeof(double) +
 
     // X Matrix Gradient
     reqt.task_xmat_grad_size( nbe_bfn, npts ) * sizeof(double) +
@@ -186,10 +187,13 @@ XCDeviceAoSData::device_buffer_t XCDeviceAoSData::allocate_dynamic_stack(
     aos_stack.d2bf_zz_eval_device = mem.aligned_alloc<double>( bfn_msz, csl );
   }
 
+  if(reqt.task_bfn_lapl) {
+    aos_stack.d2bf_lapl_eval_device = mem.aligned_alloc<double>( bfn_msz, csl );
+  }
 
   // VXC Z Matrix
-  if(reqt.task_zmat_lda_gga) {
-    aos_stack.zmat_vxc_lda_gga_device = 
+  if(reqt.task_zmat) {
+    aos_stack.zmat_vxc_device = 
       mem.aligned_alloc<double>( bfn_msz, csl);
   }
   // X Matrix Gradient (for GGA EXC Gradient)
@@ -435,7 +439,7 @@ void XCDeviceAoSData::pack_and_send(
     const size_t total_nbe_cou_npts = 
       total_nbe_cou_npts_task_batch * sizeof(double);
     buffer_adaptor nbe_mem( aos_stack.nbe_scr_device, total_nbe_scr );
-    buffer_adaptor zmat_mem( aos_stack.zmat_vxc_lda_gga_device, 
+    buffer_adaptor zmat_mem( aos_stack.zmat_vxc_device, 
       total_nbe_bfn_npts );
 
     buffer_adaptor fmat_mem( aos_stack.fmat_exx_device, total_nbe_cou_npts );
@@ -459,6 +463,9 @@ void XCDeviceAoSData::pack_and_send(
     buffer_adaptor d2bf_zz_mem( aos_stack.d2bf_zz_eval_device, 
       total_nbe_bfn_npts );
 
+    buffer_adaptor d2bf_lapl_mem( aos_stack.d2bf_lapl_eval_device, 
+      total_nbe_bfn_npts );
+
     buffer_adaptor xmat_dx_mem( aos_stack.xmat_dx_device, total_nbe_bfn_npts );
     buffer_adaptor xmat_dy_mem( aos_stack.xmat_dy_device, total_nbe_bfn_npts );
     buffer_adaptor xmat_dz_mem( aos_stack.xmat_dz_device, total_nbe_bfn_npts );
@@ -480,8 +487,9 @@ void XCDeviceAoSData::pack_and_send(
     buffer_adaptor gamma_mem  ( base_stack.gamma_eval_device,     total_npts * gamma_fac );
     buffer_adaptor vrho_mem   ( base_stack.vrho_eval_device,      total_npts * den_fac   );
     buffer_adaptor vgamma_mem ( base_stack.vgamma_eval_device,    total_npts * gamma_fac );
-
+    
     buffer_adaptor den_mem    ( base_stack.den_eval_device,       total_npts * den_fac   );
+       
 
     // Polarized KS
     buffer_adaptor den_z_mem  ( base_stack.den_z_eval_device,     total_npts  );
@@ -515,7 +523,12 @@ void XCDeviceAoSData::pack_and_send(
     buffer_adaptor dden_xx_mem( base_stack.dden_xx_eval_device,     total_npts );
     buffer_adaptor dden_xy_mem( base_stack.dden_xy_eval_device,     total_npts );
     buffer_adaptor dden_xz_mem( base_stack.dden_xz_eval_device,     total_npts );
-
+    
+    // MGGA
+    buffer_adaptor dden_lapl_mem( base_stack.den_lapl_eval_device, total_npts );
+    buffer_adaptor vlapl_mem( base_stack.vlapl_eval_device, total_npts );
+    buffer_adaptor tau_mem( base_stack.tau_eval_device, total_npts );
+    buffer_adaptor vtau_mem( base_stack.vtau_eval_device, total_npts );
 
     for( auto& task : host_device_tasks ) {
       const auto npts    = task.npts;
@@ -560,7 +573,7 @@ void XCDeviceAoSData::pack_and_send(
 
       // ZMatrix LDA/GGA
       task.zmat = zmat_mem.aligned_alloc<double>( 
-        reqt.task_zmat_lda_gga_size(nbe_bfn, npts), csl);
+        reqt.task_zmat_size(nbe_bfn, npts), csl);
 
       // Collocation + derivatives
       task.bf = bf_mem.aligned_alloc<double>( 
@@ -578,6 +591,9 @@ void XCDeviceAoSData::pack_and_send(
         task.d2bfyz = d2bf_yz_mem.aligned_alloc<double>( nbe_bfn * npts, csl);
         task.d2bfzz = d2bf_zz_mem.aligned_alloc<double>( nbe_bfn * npts, csl);
       }
+      if( reqt.task_bfn_lapl ) {
+        task.d2bflapl = d2bf_lapl_mem.aligned_alloc<double>( nbe_bfn * npts, csl);
+      }
 
       // X Matrix gradient
       if( reqt.task_xmat_grad ) {
@@ -591,7 +607,7 @@ void XCDeviceAoSData::pack_and_send(
       if (reqt.grid_den) {
         task.den_s        = den_s_mem.aligned_alloc<double>( npts, csl );
         if(is_pol) {
-          task.den          = den_mem.aligned_alloc<double>(npts*den_fac, csl); //Interleaved memory
+          task.den          = den_mem.aligned_alloc<double>(npts*2, csl); //Interleaved memory
           task.den_z        = den_z_mem.aligned_alloc<double>( npts, csl);
           if ( is_gks ) {
             task.den_y        = den_y_mem.aligned_alloc<double>( npts, csl);
@@ -659,6 +675,17 @@ void XCDeviceAoSData::pack_and_send(
       task.eps  =   eps_mem.aligned_alloc<double>( reqt.grid_eps_size(npts), csl);
 
         
+      if(reqt.grid_den_lapl) {
+        task.denlapl = dden_lapl_mem.aligned_alloc<double>(npts, csl);
+      }
+
+      task.tau = 
+        tau_mem.aligned_alloc<double>( reqt.grid_tau_size(npts), csl);
+
+      task.vtau = 
+        vtau_mem.aligned_alloc<double>( reqt.grid_vtau_size(npts), csl);
+      task.vlapl = 
+        vlapl_mem.aligned_alloc<double>( reqt.grid_vlapl_size(npts), csl);
 
       // EXX Specific
       task.fmat = fmat_mem.aligned_alloc<double>(

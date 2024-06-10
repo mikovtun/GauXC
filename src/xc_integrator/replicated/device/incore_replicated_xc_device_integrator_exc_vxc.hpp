@@ -107,7 +107,7 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
     // Don't communicate data back to the host before reduction
     this->timer_.time_op("XCIntegrator.LocalWork_EXC_VXC", [&](){
       exc_vxc_local_work_( basis, Ps, ldps, Pz, ldpz, Py, ldpy, Px, ldpx, tasks.begin(), tasks.end(), 
-        *device_data_ptr);
+        *device_data_ptr, true);
     });
 
     GAUXC_MPI_CODE(
@@ -221,7 +221,7 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
                             const value_type* Py, int64_t ldpy,
                             const value_type* Px, int64_t ldpx,
                             host_task_iterator task_begin, host_task_iterator task_end,
-                            XCDeviceData& device_data ) {
+                            XCDeviceData& device_data, bool do_vxc ) {
   const bool is_gks = (Pz != nullptr) and (Py != nullptr) and (Px != nullptr);
   const bool is_uks = (Pz != nullptr) and (Py == nullptr) and (Px == nullptr);
   const bool is_rks = (Ps != nullptr) and (not is_uks and not is_gks);
@@ -236,6 +236,8 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
   // Setup Aliases
   const auto& func  = *this->func_;
   const auto& mol   = this->load_balancer_->molecule();
+
+  if( func.is_mgga() and (is_uks or is_gks) ) GAUXC_GENERIC_EXCEPTION("Device + Polarized mGGAs NYI!");
 
   // Get basis map
   BasisSetMap basis_map(basis,mol);
@@ -254,33 +256,38 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
   // Check that Partition Weights have been calculated
   auto& lb_state = this->load_balancer_->state();
   if( not lb_state.modified_weights_are_stored ) {
-    GAUXC_GENERIC_EXCEPTION("Weights Have Not Beed Modified"); 
+    GAUXC_GENERIC_EXCEPTION("Weights Have Not Been Modified"); 
   }
   
 
   integrator_term_tracker enabled_terms;
   enabled_terms.exc_vxc = true;
+
   if (is_rks) enabled_terms.ks_scheme = RKS;
-  if (is_uks) enabled_terms.ks_scheme = UKS;
-  if (is_gks) enabled_terms.ks_scheme = GKS;
+  else if (is_uks) enabled_terms.ks_scheme = UKS;
+  else if (is_gks) enabled_terms.ks_scheme = GKS;
+
+  if( func.is_lda() )      
+    enabled_terms.xc_approx = integrator_xc_approx::LDA; 
+  else if( func.is_gga() ) 
+    enabled_terms.xc_approx = integrator_xc_approx::GGA; 
+  else if( func.needs_laplacian() )                    
+    enabled_terms.xc_approx = integrator_xc_approx::MGGA_LAPL;
+  else
+    enabled_terms.xc_approx = integrator_xc_approx::MGGA_TAU;
   
   // Do XC integration in task batches
   const auto nbf     = basis.nbf();
   const auto nshells = basis.nshells();
   device_data.reset_allocations();
-  device_data.allocate_static_data_exc_vxc( nbf, nshells, enabled_terms );
+  device_data.allocate_static_data_exc_vxc( nbf, nshells, enabled_terms, do_vxc );
   
   device_data.send_static_data_density_basis( Ps, ldps, Pz, ldpz, Px, ldpx, Py, ldpy, basis );
 
 
-  // Processes batches in groups that saturate available device memory
-  if( func.is_lda() )      enabled_terms.xc_approx = integrator_xc_approx::LDA; 
-  else if( func.is_gga() ) enabled_terms.xc_approx = integrator_xc_approx::GGA; 
-  else GAUXC_GENERIC_EXCEPTION("XC Approx NYI");
 
   // Zero integrands
   device_data.zero_exc_vxc_integrands(enabled_terms);
-  
 
 
   auto task_it = task_begin;
@@ -292,23 +299,23 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
 
     /*** Process the batches ***/
     
+    const bool need_lapl = func.needs_laplacian();
     // Evaluate collocation
-    if( func.is_gga() ) lwd->eval_collocation_gradient( &device_data );
-    else                lwd->eval_collocation( &device_data );
-    
-    auto* data = dynamic_cast<XCDeviceAoSData*>(&device_data);
-    auto tasks = data->host_device_tasks;
-    auto& task = tasks[0];
-    auto static_stack = data->static_stack;
-    auto base_stack   = data->base_stack;
-    
+    if( func.is_mgga() ) {
+      if(need_lapl) lwd->eval_collocation_laplacian( &device_data );
+      else          lwd->eval_collocation_gradient( &device_data );
+    }
+    else if( func.is_gga() ) lwd->eval_collocation_gradient( &device_data );
+    else                     lwd->eval_collocation( &device_data );
+      
     const double xmat_fac = is_rks ? 2.0 : 1.0;
+    const bool need_xmat_grad = func.is_mgga();
+    const bool need_vvar_grad = func.is_mgga() or func.is_gga();
 
     // Evaluate X matrix and V vars
-    const bool do_xmat_grad = false;
     auto do_xmat_vvar = [&](density_id den_id) {
-      lwd->eval_xmat( xmat_fac, &device_data, do_xmat_grad, den_id );
-      lwd->eval_vvar( &device_data, func.is_gga(), den_id );
+      lwd->eval_xmat( xmat_fac, &device_data, need_xmat_grad, den_id );
+      lwd->eval_vvar( &device_data, den_id, need_vvar_grad );
     };
 
     do_xmat_vvar(DEN_S);
@@ -322,24 +329,31 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
 
 
     // Evaluate U variables
-    if( func.is_gga() ) lwd->eval_uvars_gga( &device_data, enabled_terms.ks_scheme );
-    else                lwd->eval_uvars_lda( &device_data, enabled_terms.ks_scheme );
+    if( func.is_mgga() )      lwd->eval_uvars_mgga( &device_data, need_lapl );
+    else if( func.is_gga() )  lwd->eval_uvars_gga( &device_data, enabled_terms.ks_scheme );
+    else                      lwd->eval_uvars_lda( &device_data, enabled_terms.ks_scheme );
 
     // Evaluate XC functional
-    if( func.is_gga() ) lwd->eval_kern_exc_vxc_gga( func, &device_data );
-    else                lwd->eval_kern_exc_vxc_lda( func, &device_data );
+    if( func.is_mgga() )     lwd->eval_kern_exc_vxc_mgga( func, &device_data );
+    else if( func.is_gga() ) lwd->eval_kern_exc_vxc_gga( func, &device_data );
+    else                     lwd->eval_kern_exc_vxc_lda( func, &device_data );
     
 
     // Do scalar EXC/N_EL integrations
     lwd->inc_exc( &device_data );
     lwd->inc_nel( &device_data );
+    if( not do_vxc ) continue;
 
    auto do_zmat_vxc = [&](density_id den_id) {
-     if( func.is_gga() ) 
+     if( func.is_mgga() ) {
+       lwd->eval_zmat_mgga_vxc( &device_data, need_lapl);
+       lwd->eval_mmat_mgga_vxc( &device_data, need_lapl);
+     }
+     else if( func.is_gga() ) 
        lwd->eval_zmat_gga_vxc( &device_data, enabled_terms.ks_scheme, den_id );
      else 
        lwd->eval_zmat_lda_vxc( &device_data, enabled_terms.ks_scheme, den_id );
-     lwd->inc_vxc( &device_data, den_id );
+     lwd->inc_vxc( &device_data, den_id, func.is_mgga() );
   };
 
   do_zmat_vxc(DEN_S);
@@ -354,17 +368,16 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
   } // Loop over batches of batches 
 
   // Symmetrize VXC in device memory
-
-  lwd->symmetrize_vxc( &device_data, DEN_S );
-  if (not is_rks) {
-    lwd->symmetrize_vxc( &device_data, DEN_Z );
-    if (not is_uks) {
-      lwd->symmetrize_vxc( &device_data, DEN_Y );
-      lwd->symmetrize_vxc( &device_data, DEN_X );
+  if( do_vxc ) {
+    lwd->symmetrize_vxc( &device_data, DEN_S );
+    if (not is_rks) {
+      lwd->symmetrize_vxc( &device_data, DEN_Z );
+      if (not is_uks) {
+        lwd->symmetrize_vxc( &device_data, DEN_Y );
+        lwd->symmetrize_vxc( &device_data, DEN_X );
+      }
     }
   }
-
-
 }
 
 template <typename ValueType>
@@ -381,7 +394,8 @@ void IncoreReplicatedXCDeviceIntegrator<ValueType>::
                             XCDeviceData& device_data ) {
   
   // Get integrate and keep data on device
-  exc_vxc_local_work_( basis, Ps, ldps, Pz, ldpz, Py, ldpy, Px, ldpx, task_begin, task_end, device_data );
+  const bool do_vxc = VXCs;
+  exc_vxc_local_work_( basis, Ps, ldps, Pz, ldpz, Py, ldpy, Px, ldpx, task_begin, task_end, device_data, do_vxc );
   auto rt  = detail::as_device_runtime(this->load_balancer_->runtime());
   rt.device_backend()->master_queue_synchronize();
 
