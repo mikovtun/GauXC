@@ -46,6 +46,12 @@ struct PrunedAtomicGridSpecification {
   std::vector<PruningRegion> pruning_regions; ///< List of pruning regions over the radial quadrature
 };
 
+/// Generic specification of a cubic grid
+struct CubicGridSpecification {
+  std::array<double,3> origin;                    ///< Origin of cube
+  std::vector<std::array<double,3>> voxelVecs;    ///< X, Y, Z unit vectors
+  std::array<size_t,3> voxelDims;                 ///< Number of times to replicate voxel vectors
+};
 
 /// Generate a "Robust"-Psi4 Pruning specification from an unpruned quadrature specification
 PrunedAtomicGridSpecification robust_psi4_pruning_scheme(

@@ -9,7 +9,76 @@
 
 #include <gauxc/molgrid.hpp>
 
+
 namespace GauXC {
+
+template <typename PointType, typename WeightType>
+class CubicQuadrature :
+  public Quadrature<CubicQuadrature<PointType,WeightType>> {
+
+  using base_type = Quadrature<CubicQuadrature<PointType,WeightType>>;
+
+public:
+
+  using point_type       = typename base_type::point_type;
+  using weight_type      = typename base_type::weight_type;
+  using point_container  = typename base_type::point_container;
+  using weight_container = typename base_type::weight_container;
+
+  CubicQuadrature(size_t npts, point_type lo, point_type up):
+    base_type( npts, lo, up ) { }
+
+  CubicQuadrature( const UniformTrapezoid& ) = default;
+  CubicQuadrature( UniformTrapezoid&& ) noexcept = default;
+};
+
+
+
+template <typename PointType, typename WeightType>
+struct quadrature_traits<
+  CubicQuadrature<PointType,WeightType>
+> {
+
+  using point_type  = PointType;
+  using weight_type = WeightType;
+
+  using point_container  = std::vector< point_type >;
+  using weight_container = std::vector< weight_type >;
+
+  inline static constexpr bool bound_inclusive = true;
+
+  inline static std::tuple<point_container,weight_container>
+    generate( GauXC::CubicGridSpecification cgs ) {
+      // Generate the cube grid
+      const auto origin = cgs.origin;
+      const auto voxelVecs = cgs.voxelVecs;
+      const auto xMax = cgs.voxelDims[0];
+      const auto yMax = cgs.voxelDims[1];
+      const auto zMax = cgs.voxelDims[2];
+      const size_t nPts = xMax * yMax * zMax;
+      auto points = std::vector<std::array<double,3>>(nPts);
+      auto weights = std::vector<double>(nPts, 1.0);
+
+      size_t idP = 0;
+      for( size_t idx = 0; idx < xMax; idx++ ) {
+        for( size_t idy = 0; idy < yMax; idy++ ) {
+          for( size_t idz = 0; idz < zMax; idz++ ) {
+            // x,y,z components
+            for( size_t idC = 0; idC < 3; idC++ ) {
+              points[idP][idC] = origin[idC] + double(idx) * voxelVecs[0][idC] + 
+                                               double(idy) * voxelVecs[1][idC] + 
+                                               double(idz) * voxelVecs[2][idC];
+            }
+            ++idP;
+          }
+        }
+      }
+			return std::make_tuple( points, weights );
+
+  }
+
+
+
 
   double slater_radius_64(AtomicNumber);
   double slater_radius_30(AtomicNumber);
@@ -67,6 +136,50 @@ namespace GauXC {
       }
       return molmap;
 
+    }
+    
+    // Special instance for CubeGen
+    inline static atomic_grid_map create_default_gridmap( 
+      const Molecule& mol, PruningScheme scheme, BatchSize bsz,
+      CubicGridSpecification cgs ) {
+      // Get first atom and attach whole grid to it. Ignore the others
+      const auto& atom = mol[0];
+      atomic_grid_map molmap;
+
+      // Generate the cube grid
+      const auto origin = cgs.origin;
+      const auto voxelVecs = cgs.voxelVecs;
+      const auto xMax = cgs.voxelDims[0];
+      const auto yMax = cgs.voxelDims[1];
+      const auto zMax = cgs.voxelDims[2];
+      const size_t nPts = xMax * yMax * zMax;
+      auto points = std::vector<std::array<double,3>>(nPts);
+      auto weights = std::vector<double>(nPts, 1.0);
+
+      size_t idP = 0;
+      for( size_t idx = 0; idx < xMax; idx++ ) {
+        for( size_t idy = 0; idy < yMax; idy++ ) {
+          for( size_t idz = 0; idz < zMax; idz++ ) {
+            // x,y,z components
+            for( size_t idC = 0; idC < 3; idC++ ) {
+              points[idP][idC] = origin[idC] + double(idx) * voxelVecs[0][idC] + 
+                                               double(idy) * voxelVecs[1][idC] + 
+                                               double(idz) * voxelVecs[2][idC];
+            }
+            ++idP;
+          }
+        }
+      }
+
+      // Put grid into quadrature
+      using quad_type = IntegratorXX::QuadratureBase< std::vector<std::array<double,3>>, std::vector<double> >;
+
+      auto quadrature = quad_type(std::move(points), std::move(weights));
+
+      Grid cubicGrid ( std::make_shared<quad_type> (quadrature), bsz );
+      
+      molmap.emplace(atom.Z, cubicGrid);
+      return molmap;
     }
 
     template <typename... Args>

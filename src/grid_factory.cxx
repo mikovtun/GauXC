@@ -66,7 +66,6 @@ Grid AtomicGridFactory::generate_grid( UnprunedAtomicGridSpecification gs, Batch
 
 
 
-
 /**********************/
 /**** Pruned Grids ****/
 /**********************/

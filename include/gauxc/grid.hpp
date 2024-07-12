@@ -47,6 +47,7 @@ public:
    *  @param[in] bsz Batch size for quadrature
    */
   Grid( std::shared_ptr<quadrature_type> q, BatchSize bsz );
+  Grid( std::shared_ptr<cube_quadrature_type> q, BatchSize bsz );
 
   /// Copy a Grid object
   Grid( const Grid& );

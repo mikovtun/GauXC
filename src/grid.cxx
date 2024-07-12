@@ -13,6 +13,9 @@ namespace GauXC {
 Grid::Grid( std::shared_ptr<quadrature_type> q, BatchSize bsz ) :
   pimpl_( std::make_shared<detail::GridImpl>(q, bsz) ) { }
 
+Grid::Grid( std::shared_ptr<cube_quadrature_type> q, BatchSize bsz ) :
+  pimpl_( std::make_shared<detail::GridImpl>(q, bsz) ) { }
+
 Grid::Grid( const Grid& )     = default;
 Grid::Grid( Grid&& ) noexcept = default;
 

@@ -25,6 +25,11 @@ using quadrature_type = IntegratorXX::SphericalQuadratureBase<
   std::vector<double>
 >;
 
+using cube_quadrature_type = IntegratorXX::Quadrature<
+  std::vector<std::array<double,3>>,
+  std::vector<double>
+>;
+
 using batcher_type = IntegratorXX::SphericalMicroBatcher<
   typename quadrature_type::point_container,
   typename quadrature_type::weight_container
