@@ -167,10 +167,8 @@ void test_xc_integrator( ExecutionSpace ex, const RuntimeEnvironment& rt,
     }
   }
 
-  if(uks and ex == ExecutionSpace::Device) return;
-  if(gks and ex == ExecutionSpace::Device) return;
-  if(neo and ex == ExecutionSpace::Device) return;
-
+  if( (uks or gks) and ex == ExecutionSpace::Device and func->is_mgga() ) return;
+  if( neo and ex == ExecutionSpace::Device ) return;
 
   for( auto& sh : basis ) 
     sh.set_shell_tolerance( std::numeric_limits<double>::epsilon() );
@@ -412,19 +410,23 @@ void test_integrator(std::string reference_file, std::shared_ptr<functional_type
 
     #ifdef GAUXC_HAS_MAGMA
     SECTION( "Incore - MPI Reduction - MAGMA" ) {
-      test_xc_integrator( ExecutionSpace::Device, rt,
-        reference_file, func, pruning_scheme,
-        false, true, check_k, "Default", "Default", 
-        "Scheme1-MAGMA" );
+      if(not func.is_mgga() and not func.is_polarized()) {
+        test_xc_integrator( ExecutionSpace::Device, rt,
+          reference_file, func, pruning_scheme,
+          false, true, check_k, "Default", "Default", 
+          "Scheme1-MAGMA" );
+      }
     }
     #endif
 
     #ifdef GAUXC_HAS_CUTLASS
     SECTION( "Incore - MPI Reduction - CUTLASS" ) {
-      test_xc_integrator( ExecutionSpace::Device, rt, 
-        reference_file, func, pruning_scheme,
-        false, true, false, "Default", "Default", 
-        "Scheme1-CUTLASS" );
+      if(not func.is_mgga() and not func.is_polarized()) {
+        test_xc_integrator( ExecutionSpace::Device, rt, 
+          reference_file, func, pruning_scheme,
+          false, true, false, "Default", "Default", 
+          "Scheme1-CUTLASS" );
+      }
     }
     #endif
 
